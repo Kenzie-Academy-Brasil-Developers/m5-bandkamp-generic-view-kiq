@@ -4,59 +4,59 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import UserSerializer
 from django.shortcuts import get_object_or_404
 from .permissions import IsAccountOwner
+from rest_framework import generics
 
 
-class UserView(APIView):
-    def post(self, request: Request) -> Response:
-        """
-        Registro de usuários
-        """
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-
-        return Response(serializer.data, status.HTTP_201_CREATED)
+class UserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
-class UserDetailView(APIView):
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAccountOwner]
 
-    def get(self, request: Request, pk: int) -> Response:
-        """
-        Obtençao de usuário
-        """
-        user = get_object_or_404(User, pk=pk)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-        self.check_object_permissions(request, user)
+# class UserDetailView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAccountOwner]
 
-        serializer = UserSerializer(user)
+#     def get(self, request: Request, pk: int) -> Response:
+#         """
+#         Obtençao de usuário
+#         """
+#         user = get_object_or_404(User, pk=pk)
 
-        return Response(serializer.data)
+#         self.check_object_permissions(request, user)
 
-    def patch(self, request: Request, pk: int) -> Response:
-        """
-        Atualização de usuário
-        """
-        user = get_object_or_404(User, pk=pk)
+#         serializer = UserSerializer(user)
 
-        self.check_object_permissions(request, user)
+#         return Response(serializer.data)
 
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+#     def patch(self, request: Request, pk: int) -> Response:
+#         """
+#         Atualização de usuário
+#         """
+#         user = get_object_or_404(User, pk=pk)
 
-        return Response(serializer.data)
+#         self.check_object_permissions(request, user)
 
-    def delete(self, request: Request, pk: int) -> Response:
-        """
-        Deleçao de usuário
-        """
-        user = get_object_or_404(User, pk=pk)
+#         serializer = UserSerializer(user, data=request.data, partial=True)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
 
-        self.check_object_permissions(request, user)
+#         return Response(serializer.data)
 
-        user.delete()
+#     def delete(self, request: Request, pk: int) -> Response:
+#         """
+#         Deleçao de usuário
+#         """
+#         user = get_object_or_404(User, pk=pk)
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#         self.check_object_permissions(request, user)
+
+#         user.delete()
+
+#         return Response(status=status.HTTP_204_NO_CONTENT)
